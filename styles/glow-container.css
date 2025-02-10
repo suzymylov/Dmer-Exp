@@ -1,0 +1,40 @@
+@keyframes glow {
+  0% {
+    left: -150%;
+  }
+  100% {
+    left: 100%;
+  }
+}
+
+.glow-container {
+  position: relative;
+  overflow: hidden;
+}
+
+.glow-container::before {
+  content: "";
+  position: absolute;
+  top: 0;
+  left: -150%;
+  width: 150%;
+  height: 100%;
+  background: linear-gradient(
+    90deg,
+    transparent,
+    rgba(255, 255, 255, 0.6),
+    transparent
+  );
+  transform: skewX(-30deg);
+  z-index: 1;
+}
+
+.glow-container:hover::before {
+  animation: glow 1.2s infinite linear;
+}
+
+.glow-container > * {
+  position: relative;
+  z-index: 2;
+}
+
