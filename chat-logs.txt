@@ -1239,3 +1239,9 @@ let deviceDataCache: any = null
 错误: Cannot read properties of undefined (reading 'toString')
 ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
 
+2025-03-20T10:41:37.409Z: 
+错误发生
+时间: 2025-03-20T10:41:37.408Z
+错误: API配置缺失，请检查环境变量
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+

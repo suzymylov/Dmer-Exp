@@ -8,8 +8,13 @@ import { logToFile } from '@/lib/logger'
 // 错误示例: const API_KEY = "sk_123456789"
 
 // 正确的方式是通过process.env引用
-const apiUrl = process.env.API_URL
+const apiUrl = process.env.API_URL || 'https://api.gemini.com/v1/chat/completions' // 设置一个默认值或使用您实际的API地址
 const apiKey = process.env.API_KEY
+
+// 添加更强的验证
+if (!apiKey) {
+  console.error('API_KEY环境变量缺失')
+}
 
 // 如果需要检查这些值是否存在
 if (!apiUrl || !apiKey) {
@@ -171,8 +176,13 @@ ${JSON.stringify(deviceStats, null, 2)}
     console.log('发送给AI的消息数量:', messages.length)
     console.log('包含数据库信息:', !!messages.find(msg => msg.role === 'system'))
 
-    // 发送请求到AI
-    const response = await fetch(apiUrl, {
+    // 发送请求到AI前检查
+    if (!apiUrl || !apiKey) {
+      throw new Error('API配置缺失，请检查环境变量')
+    }
+    
+    // 确保apiUrl是字符串类型
+    const response = await fetch(apiUrl as string, {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json',
