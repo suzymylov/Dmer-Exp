@@ -6,9 +6,17 @@
   from = "/api/*"
   to = "/.netlify/functions/api/:splat"
   status = 200
+  force = true
+
+# 确保API路径找不到时不会返回404页面
+[[redirects]]
+  from = "/*"
+  to = "/index.html"
+  status = 200
 
 [functions]
   directory = "netlify/functions"
+  node_bundler = "esbuild"
 
 [build.environment]
-  NEXT_PUBLIC_API_BASE_URL = "/api" 
+  NEXT_PUBLIC_API_URL = "/api" 

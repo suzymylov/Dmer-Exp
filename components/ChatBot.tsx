@@ -46,9 +46,9 @@ export function ChatBot() {
   const initializeChat = async () => {
     setIsLoading(true)
     try {
-      // 使用环境变量或默认路径
-      const apiUrl = process.env.NEXT_PUBLIC_API_URL || '/api'
-      const response = await fetch(`${apiUrl}/chat`, {
+      console.log('开始初始化聊天...')
+      // 直接使用固定路径，不使用环境变量
+      const response = await fetch('/api/chat', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ 
@@ -57,13 +57,23 @@ export function ChatBot() {
         }),
       })
 
+      if (!response.ok) {
+        throw new Error(`状态码: ${response.status}`)
+      }
+
       const data = await response.json()
+      console.log('初始化成功:', data)
       if (data.success) {
         setMessages([{ role: 'assistant', content: data.message }])
         setIsInitialized(true)
       }
     } catch (error) {
       console.error('初始化错误:', error)
+      // 向用户显示错误
+      setMessages([{ 
+        role: 'assistant', 
+        content: `初始化失败: ${error instanceof Error ? error.message : '未知错误'}` 
+      }])
     } finally {
       setIsLoading(false)
     }
