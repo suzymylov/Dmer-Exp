@@ -1,16 +1,47 @@
-const { createServerHandler } = require('@netlify/next');
-
-const handler = createServerHandler({
-  // 你的Next.js应用程序的根目录
-  dir: __dirname,
-});
-
+// 简化的API处理函数
 exports.handler = async (event, context) => {
-  // 提取路径参数以便正确路由请求
-  const path = event.path.replace('/.netlify/functions/api', '');
-  event.path = path || '/';
+  const path = event.path.replace('/.netlify/functions/api', '') || '/';
   
-  console.log('处理API请求:', event.path);
+  console.log('接收到API请求:', {
+    path,
+    method: event.httpMethod,
+    headers: event.headers,
+    body: event.body ? '有内容' : '无内容'
+  });
   
-  return handler(event, context);
-}; 
+  // 添加调试响应
+  if (path === '/debug') {
+    return {
+      statusCode: 200,
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({
+        success: true,
+        message: 'API函数正常工作',
+        event: {
+          path: event.path,
+          method: event.httpMethod,
+          headers: event.headers,
+          queryParams: event.queryStringParameters
+        }
+      })
+    }
+  }
+  
+  // 根据路径返回不同的响应
+  if (path === '/chat') {
+    return {
+      statusCode: 200,
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({
+        success: true,
+        message: '欢迎使用AI助手，我能帮您查询设备信息。'
+      })
+    }
+  }
+  
+  // 默认响应
+  return {
+    statusCode: 404,
+    body: JSON.stringify({ success: false, error: '未找到API端点' })
+  }
+} 

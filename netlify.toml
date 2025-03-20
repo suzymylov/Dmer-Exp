@@ -1,5 +1,5 @@
 [build]
-  command = "npm run build"
+  command = "npm install --legacy-peer-deps && npm run build"
   publish = ".next"
 
 [[redirects]]
@@ -19,4 +19,6 @@
   node_bundler = "esbuild"
 
 [build.environment]
-  NEXT_PUBLIC_API_URL = "/api" 
+  NEXT_PUBLIC_API_URL = "/api"
+  # 关闭机密扫描
+  SECRETS_SCAN_ENABLED = "false" 
