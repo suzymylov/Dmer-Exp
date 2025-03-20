@@ -1227,3 +1227,15 @@ let deviceDataCache: any = null
 系统消息大小: 20046 bytes
 ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
 
+2025-03-20T10:28:12.128Z: 
+错误发生
+时间: 2025-03-20T10:28:12.128Z
+错误: Cannot read properties of undefined (reading 'toString')
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+2025-03-20T10:28:15.625Z: 
+错误发生
+时间: 2025-03-20T10:28:15.625Z
+错误: Cannot read properties of undefined (reading 'toString')
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+

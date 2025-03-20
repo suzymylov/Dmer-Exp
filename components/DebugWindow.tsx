@@ -17,7 +17,8 @@ export function DebugWindow() {
         setContent('加载中...')
         setIsOpen(true)
         
-        const response = await fetch('/api/chat/context')
+        const apiUrl = process.env.NEXT_PUBLIC_API_URL || '/api'
+        const response = await fetch(`${apiUrl}/chat/context`)
         if (!response.ok) {
           throw new Error(`HTTP error! status: ${response.status}`)
         }

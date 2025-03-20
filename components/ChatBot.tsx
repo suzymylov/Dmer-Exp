@@ -46,7 +46,9 @@ export function ChatBot() {
   const initializeChat = async () => {
     setIsLoading(true)
     try {
-      const response = await fetch('/api/chat', {
+      // 使用环境变量或默认路径
+      const apiUrl = process.env.NEXT_PUBLIC_API_URL || '/api'
+      const response = await fetch(`${apiUrl}/chat`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ 
@@ -80,7 +82,8 @@ export function ChatBot() {
     setIsLoading(true)
 
     try {
-      const response = await fetch('/api/chat', {
+      const apiUrl = process.env.NEXT_PUBLIC_API_URL || '/api'
+      const response = await fetch(`${apiUrl}/chat`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ 

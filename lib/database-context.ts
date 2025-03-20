@@ -26,13 +26,12 @@ interface DatabaseContext {
 export async function getDatabaseContext(): Promise<string> {
   try {
     console.log('开始获取数据库上下文...')
-    // 获取详细的设备数据
+    // 获取详细的设备数据 - 移除不存在的列
     const result = await db.execute(`
       SELECT 
         device_name,
         location,
         serial_number,
-        specifications,
         type
       FROM devices
       ORDER BY device_name, location
@@ -47,7 +46,7 @@ export async function getDatabaseContext(): Promise<string> {
 
     // 处理查询结果
     result.rows.forEach(device => {
-      const { device_name, location, serial_number, specifications, type } = device
+      const { device_name, location, serial_number, type } = device
       context.totalDevices++
       context.locations.add(location)
 
@@ -58,7 +57,7 @@ export async function getDatabaseContext(): Promise<string> {
           locations: {},
           properties: {
             type: type || '未知类型',
-            specifications: specifications ? JSON.parse(specifications) : []
+            specifications: [] // 直接使用空数组代替不存在的specifications列
           }
         }
       }

@@ -3,8 +3,18 @@ import { getDatabaseContext } from '@/lib/database-context'
 import { db } from '@/lib/db'
 import { logToFile } from '@/lib/logger'
 
-const API_URL = 'https://gemini.kid.ddns-ip.net/v1/chat/completions'
-const API_KEY = 'AIzaSyBr52X31WPJHMf1Qy570-zRDbiiUZ-zIRU'
+// 不要直接在代码中使用环境变量的值
+// 错误示例: const API_URL = "https://example.com/api"
+// 错误示例: const API_KEY = "sk_123456789"
+
+// 正确的方式是通过process.env引用
+const apiUrl = process.env.API_URL
+const apiKey = process.env.API_KEY
+
+// 如果需要检查这些值是否存在
+if (!apiUrl || !apiKey) {
+  console.error('环境变量缺失')
+}
 
 // 存储系统消息
 let systemMessage: { role: 'system'; content: string } | null = null
@@ -162,11 +172,11 @@ ${JSON.stringify(deviceStats, null, 2)}
     console.log('包含数据库信息:', !!messages.find(msg => msg.role === 'system'))
 
     // 发送请求到AI
-    const response = await fetch(API_URL, {
+    const response = await fetch(apiUrl, {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json',
-        'Authorization': `Bearer ${API_KEY}`
+        'Authorization': `Bearer ${apiKey}`
       },
       body: JSON.stringify({
         model: 'gemini-2.0-flash-exp',
