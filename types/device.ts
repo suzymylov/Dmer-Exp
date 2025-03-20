@@ -4,11 +4,13 @@ export interface Device {
   serial_number: string
 }
 
+export interface Location {
+  name: string
+  serial_numbers: string[]
+}
+
 export interface GroupedDevice {
   device_name: string
-  locations: Array<{
-    name: string
-    serial_numbers: string[]
-  }>
+  locations: Location[]
 }
 

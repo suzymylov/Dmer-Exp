@@ -1,19 +1,31 @@
 import type { Metadata } from 'next'
 import './globals.css'
+import { ChatBot } from '@/components/ChatBot'
+import { SearchBar } from '@/components/SearchBar'
 
 export const metadata: Metadata = {
-  title: 'v0 App',
+  title: 'Dmer-Exp',
   description: 'Created with v0',
 }
 
 export default function RootLayout({
   children,
-}: Readonly<{
+}: {
   children: React.ReactNode
-}>) {
+}) {
   return (
-    <html lang="en">
-      <body>{children}</body>
+    <html lang="zh">
+      <body>
+        <div className="min-h-screen flex flex-col">
+          <div className="fixed top-4 right-4 z-50">
+            <SearchBar />
+          </div>
+          <main className="flex-1">
+            {children}
+          </main>
+          <ChatBot />
+        </div>
+      </body>
     </html>
   )
 }

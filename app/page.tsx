@@ -5,8 +5,10 @@ import { DeviceContainer } from "@/components/device-container"
 import { SearchInput } from "@/components/search-input"
 import type { GroupedDevice } from "@/types/device"
 import { toast } from "@/components/ui/use-toast"
-import { Boxes } from "lucide-react"
+import { Boxes, Database } from "lucide-react"
 import WaterRippleEffect from "@/components/WaterRippleEffect"
+import { ChatBot } from "@/components/ChatBot"
+import { DebugWindow } from "@/components/DebugWindow"
 
 function compareSerialNumbers(a: string, b: string): number {
   const numA = Number.parseInt(a.replace(/\D/g, ""))
@@ -107,18 +109,47 @@ export default function Page() {
   return (
     <div className="min-h-screen bg-zinc-900 bg-[radial-gradient(ellipse_at_top,_var(--tw-gradient-stops))] from-zinc-800 to-zinc-900">
       <WaterRippleEffect />
-      <div className="max-w-[90rem] mx-auto px-6 py-8">
-        <div className="flex items-center gap-3 mb-12">
-          <div className="p-3 rounded-2xl bg-zinc-800/50 backdrop-blur-sm">
-            <Boxes className="h-8 w-8 text-white" />
+      
+      {/* 固定头部 */}
+      <div className="fixed top-0 left-0 right-0 z-50 bg-gradient-to-r from-blue-400/30 via-purple-400/30 to-pink-400/30 backdrop-blur-md border-b border-white/20 shadow-lg">
+        <div className="max-w-[90rem] mx-auto px-6 py-4">
+          <div className="relative flex flex-col md:flex-row md:items-center">
+            {/* Logo部分 - 使用absolute定位 */}
+            <div className="absolute left-0 flex items-center gap-3">
+              <div className="p-2 rounded-2xl bg-gradient-to-r from-blue-500/40 to-purple-500/40 hover:from-blue-500/50 hover:to-purple-500/50 transition-all duration-300 shadow-xl">
+                <Boxes className="h-6 w-6 text-white" />
+              </div>
+              <h1 className="text-2xl font-bold text-transparent bg-clip-text bg-gradient-to-r from-blue-200 via-purple-200 to-pink-200 tracking-wide">
+                Dmer-Exp
+              </h1>
+            </div>
+            
+            {/* 搜索栏和聊天按钮容器 - 居中定位 */}
+            <div className="flex-1 flex justify-center mx-auto -ml-36">
+              <div className="w-[600px] flex items-center gap-4">
+                <SearchInput onSearch={handleSearch} isLoading={isLoading} />
+                <ChatBot />
+              </div>
+            </div>
+
+            {/* 调试按钮 - 右侧定位 */}
+            <div className="absolute right-0 top-1/2 -translate-y-1/2">
+              <button
+                onClick={() => document.dispatchEvent(new CustomEvent('debug-click'))}
+                className="flex h-8 w-8 items-center justify-center rounded-full bg-white/5 hover:bg-white/10 text-white/40 hover:text-white/60 transition-all duration-300"
+              >
+                <Database className="h-4 w-4" />
+              </button>
+            </div>
           </div>
-          <h1 className="text-3xl font-bold text-white">Dmer-Exp</h1>
         </div>
+      </div>
 
-        <div className="mb-12 max-w-xl mx-auto">
-          <SearchInput onSearch={handleSearch} isLoading={isLoading} />
-        </div>
+      {/* 添加调试窗口组件 */}
+      <DebugWindow />
 
+      {/* 主要内容区域，添加顶部padding以防止被固定头部遮挡 */}
+      <div className="max-w-[90rem] mx-auto px-6 pt-32 pb-8">
         {error && (
           <div className="flex items-center justify-center h-64">
             <div className="text-lg text-red-400">{error}</div>
@@ -130,9 +161,14 @@ export default function Page() {
             <div className="text-lg text-zinc-400">加载中...</div>
           </div>
         ) : !error && filteredDevices.length > 0 ? (
-          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4 auto-rows-auto">
             {filteredDevices.map((device, index) => (
-              <DeviceContainer key={index} device={device} index={index} totalDevices={filteredDevices.length} />
+              <DeviceContainer
+                key={`${device.device_name}-${index}`}
+                device={device}
+                index={index}
+                totalDevices={filteredDevices.length}
+              />
             ))}
           </div>
         ) : (

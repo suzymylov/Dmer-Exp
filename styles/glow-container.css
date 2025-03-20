@@ -13,24 +13,24 @@
 }
 
 .glow-container::before {
-  content: "";
+  content: '';
   position: absolute;
   top: 0;
-  left: -150%;
-  width: 150%;
-  height: 100%;
-  background: linear-gradient(
-    90deg,
-    transparent,
-    rgba(255, 255, 255, 0.6),
-    transparent
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background: radial-gradient(
+    circle at var(--mouse-x, 50%) var(--mouse-y, 50%),
+    rgba(255, 255, 255, 0.1) 0%,
+    rgba(255, 255, 255, 0) 50%
   );
-  transform: skewX(-30deg);
-  z-index: 1;
+  opacity: 0;
+  transition: opacity 0.3s;
+  pointer-events: none;
 }
 
 .glow-container:hover::before {
-  animation: glow 1.2s infinite linear;
+  opacity: 1;
 }
 
 .glow-container > * {
