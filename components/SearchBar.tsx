@@ -66,11 +66,7 @@ export function SearchBar() {
             animate={{ opacity: 1, width: 'auto' }}
             exit={{ opacity: 0, width: 0 }}
             transition={{ duration: 0.3 }}
-            className="fixed md:absolute right-0 top-[60px] md:top-full md:left-0 w-[90vw] md:w-80 m-2 rounded-xl bg-white/90 backdrop-blur-lg shadow-[0_8px_30px_rgb(0,0,0,0.12)] border border-white/20 overflow-hidden z-[100]"
-            style={{
-              maxWidth: "calc(100vw - 20px)",
-              transform: "none" // 覆盖任何可能的transform
-            }}
+            className="fixed md:absolute top-[60px] left-[10px] md:left-0 md:top-full w-[calc(100vw-20px)] md:w-80 mt-2 rounded-xl bg-white/90 backdrop-blur-lg shadow-[0_8px_30px_rgb(0,0,0,0.12)] border border-white/20 overflow-hidden z-50"
           >
             <div className="flex p-2">
               <input
