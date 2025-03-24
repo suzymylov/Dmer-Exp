@@ -37,7 +37,7 @@ exports.handler = async (event, context) => {
       // 使用配置的API密钥和URL，提供默认值
       const apiKey = process.env.API_KEY || 'AIzaSyBr52X31WPJHMf1Qy570-zRDbiiUZ-zIRU';
       // 修正URL格式 - 使用正确的kidgapi端点
-      const apiUrl = 'http://kidgapi.netlify.app/edge/v1/chat/completions';
+      const apiUrl = 'https://kidgapi.netlify.app/edge/v1/chat/completions';
       
       // 解析请求体
       const requestBody = JSON.parse(event.body);
