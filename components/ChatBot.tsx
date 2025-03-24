@@ -47,8 +47,8 @@ export function ChatBot() {
     setIsLoading(true)
     try {
       console.log('开始初始化聊天...')
-      // 直接使用固定路径，不使用环境变量
-      const response = await fetch('/api/chat', {
+      // 在Netlify上使用正确的函数路径
+      const response = await fetch('/.netlify/functions/api/chat', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ 
@@ -94,11 +94,10 @@ export function ChatBot() {
     setIsLoading(true)
 
     try {
-      // 确保使用正确的API路径
-      const apiUrl = process.env.NEXT_PUBLIC_API_URL || '/api'
-      console.log('发送聊天请求到:', `${apiUrl}/chat`)
+      // 使用正确的Netlify函数路径
+      console.log('发送聊天请求到: /.netlify/functions/api/chat')
       
-      const response = await fetch(`${apiUrl}/chat`, {
+      const response = await fetch('/.netlify/functions/api/chat', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ 

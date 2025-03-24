@@ -2,13 +2,14 @@
   command = "npm install --legacy-peer-deps && npm run build"
   publish = ".next"
 
+# 这个重定向可以保留，但我们前端代码现在会直接使用/.netlify/functions/api路径
 [[redirects]]
   from = "/api/*"
   to = "/.netlify/functions/api/:splat"
   status = 200
   force = true
 
-# 确保API路径找不到时不会返回404页面
+# 确保所有的路由请求都被处理
 [[redirects]]
   from = "/*"
   to = "/index.html"

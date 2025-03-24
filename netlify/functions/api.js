@@ -8,7 +8,8 @@ exports.handler = async (event, context) => {
     path,
     method: event.httpMethod,
     headers: event.headers,
-    body: event.body ? '有内容' : '无内容'
+    body: event.body ? '有内容' : '无内容',
+    url: event.path
   });
   
   // 添加调试响应
@@ -21,6 +22,7 @@ exports.handler = async (event, context) => {
         message: 'API函数正常工作',
         event: {
           path: event.path,
+          processedPath: path,
           method: event.httpMethod,
           headers: event.headers,
           queryParams: event.queryStringParameters
@@ -29,8 +31,8 @@ exports.handler = async (event, context) => {
     }
   }
   
-  // 处理聊天请求
-  if (path === '/chat' && event.httpMethod === 'POST') {
+  // 处理聊天请求 - 无论是/chat还是/api/chat都应处理
+  if (path === '/chat' || path === '/api/chat') {
     try {
       // 使用配置的API密钥和URL，提供默认值
       const apiKey = process.env.API_KEY || 'AIzaSyBr52X31WPJHMf1Qy570-zRDbiiUZ-zIRU';
@@ -113,6 +115,11 @@ exports.handler = async (event, context) => {
   // 默认响应
   return {
     statusCode: 404,
-    body: JSON.stringify({ success: false, error: '未找到API端点' })
+    body: JSON.stringify({ 
+      success: false, 
+      error: '未找到API端点',
+      requestedPath: path,
+      originalPath: event.path
+    })
   }
 } 
