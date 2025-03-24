@@ -1,5 +1,44 @@
 // 简化的API处理函数
 const fetch = require('node-fetch');
+const { getDatabaseContext, getDeviceStats } = require('./database-context');
+const { logToFile } = require('./logger');
+
+// 存储系统消息
+let systemMessage = null;
+// 存储对话历史
+let conversationHistory = [];
+// 存储设备数据的缓存
+let deviceDataCache = null;
+// 添加日志计数器
+let messageCounter = 0;
+
+// 获取数据（使用缓存）
+async function getDataWithCache() {
+  // 只在缓存不存在时获取数据
+  if (!deviceDataCache) {
+    console.log('首次从数据库获取数据');
+    try {
+      const databaseContext = await getDatabaseContext();
+      const deviceStats = await getDeviceStats();
+      
+      // 更新缓存
+      deviceDataCache = {
+        databaseContext,
+        deviceStats
+      };
+    } catch (error) {
+      console.error('获取数据失败:', error);
+      deviceDataCache = {
+        databaseContext: JSON.stringify({ error: '数据库连接失败' }),
+        deviceStats: {}
+      };
+    }
+  } else {
+    console.log('使用内存中的缓存数据');
+  }
+
+  return deviceDataCache;
+}
 
 exports.handler = async (event, context) => {
   const path = event.path.replace('/.netlify/functions/api', '') || '/';
@@ -34,6 +73,7 @@ exports.handler = async (event, context) => {
   // 处理聊天请求 - 无论是/chat还是/api/chat都应处理
   if (path === '/chat' || path === '/api/chat') {
     try {
+      messageCounter++;
       // 使用配置的API密钥和URL，提供默认值
       const apiKey = process.env.API_KEY || 'AIzaSyBr52X31WPJHMf1Qy570-zRDbiiUZ-zIRU';
       // 修正URL格式 - 使用正确的kidgapi端点
@@ -43,23 +83,64 @@ exports.handler = async (event, context) => {
       const requestBody = JSON.parse(event.body);
       const { message, isFirstMessage } = requestBody;
       
+      // 获取数据库数据
+      const { databaseContext, deviceStats } = await getDataWithCache();
+      
+      // 如果是第一次对话，创建系统消息
+      if (isFirstMessage || !systemMessage) {
+        systemMessage = {
+          role: 'system',
+          content: `你是一个专业的设备管理AI助手。你可以访问以下设备数据和统计信息：
+
+详细设备数据：
+${databaseContext}
+
+设备统计信息：
+${JSON.stringify(deviceStats, null, 2)}
+
+请遵循以下规则：
+1. 设备查询：
+   - 当用户询问具体设备数量时，请使用统计数据提供精确数字
+   - 当询问设备分布时，列出所有相关地点及其对应数量
+   - 回答要格式清晰，数据准确
+   - 当用户问"在哪里"或"分布在哪里"时，列出该设备的所有位置和数量
+
+2. 上下文理解：
+   - 记住用户之前提到的设备名称
+   - 理解代词（"它"、"这个"等）指代的是之前提到的设备
+   - 主动关联上下文中的设备信息
+
+3. 通用对话：
+   - 保持友好和专业的对话态度
+   - 在不确定时主动询问用户具体指哪个设备
+   - 展示完整的数据和计算过程
+
+请记住对话上下文，理解连续提问的关联性。`
+        };
+        conversationHistory = [systemMessage];
+      }
+      
       console.log('向Gemini API发送请求:', {
         apiUrl,
         message: message.substring(0, 50) + (message.length > 50 ? '...' : ''),
         isFirstMessage
       });
       
+      // 非首次对话，添加新消息到历史记录
+      if (!isFirstMessage) {
+        // 保持原有的系统消息（包含数据库信息）
+        const userMessages = conversationHistory.filter(msg => msg.role !== 'system');
+        conversationHistory = [
+          systemMessage,  // 必须包含，因为AI需要在每次请求中看到数据
+          ...userMessages,
+          { role: 'user', content: message }
+        ];
+      }
+      
       // 构建发送给Gemini转发服务的消息 - 使用OpenAI格式
       const openaiRequest = {
         model: 'gemini-2.0-flash',
-        messages: [
-          // 如果是第一条消息，添加系统提示
-          ...(isFirstMessage ? [{
-            role: 'system',
-            content: '你是一个专业的设备管理AI助手，能够提供准确、专业的回答。'
-          }] : []),
-          { role: 'user', content: message }
-        ],
+        messages: conversationHistory,
         temperature: 0.7,
         max_tokens: 1000
       };
@@ -86,6 +167,23 @@ exports.handler = async (event, context) => {
       // 从转发服务响应中提取文本
       const aiResponse = data.choices?.[0]?.message?.content || '无法获取响应';
       
+      // 添加AI回复到历史记录
+      conversationHistory.push({
+        role: 'assistant',
+        content: aiResponse
+      });
+      
+      // 记录日志
+      logToFile(`
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+第 ${messageCounter} 次对话开始
+时间: ${new Date().toISOString()}
+用户消息: ${message}
+对话历史长度: ${conversationHistory.length}
+系统消息大小: ${Buffer.byteLength(systemMessage?.content || '', 'utf8')} bytes
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+`);
+      
       // 返回成功响应
       return {
         statusCode: 200,
@@ -97,6 +195,12 @@ exports.handler = async (event, context) => {
       };
     } catch (error) {
       console.error('处理聊天请求时出错:', error);
+      logToFile(`
+错误发生
+时间: ${new Date().toISOString()}
+错误: ${error.message || '未知错误'}
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+`);
       
       // 返回错误响应
       return {

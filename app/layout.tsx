@@ -1,6 +1,5 @@
 import type { Metadata } from 'next'
 import './globals.css'
-import { ChatBot } from '@/components/ChatBot'
 import { SearchBar } from '@/components/SearchBar'
 
 export const metadata: Metadata = {
@@ -23,7 +22,6 @@ export default function RootLayout({
           <main className="flex-1">
             {children}
           </main>
-          <ChatBot />
         </div>
       </body>
     </html>
