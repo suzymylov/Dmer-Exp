@@ -17,6 +17,7 @@
     "@libsql/client": "latest",
     "@libsql/client-wasm": "latest",
     "@neondatabase/serverless": "latest",
+    "@netlify/next": "^1.4.5",
     "@op-engineering/op-sqlite": "latest",
     "@opentelemetry/api": "latest",
     "@planetscale/database": "latest",
@@ -88,7 +89,7 @@
     "tailwindcss-animate": "^1.0.7",
     "vaul": "^0.9.6",
     "zod": "^3.24.1",
-    "@netlify/next": "^1.4.5"
+    "node-fetch": "^2.6.7"
   },
   "devDependencies": {
     "@types/node": "^22",

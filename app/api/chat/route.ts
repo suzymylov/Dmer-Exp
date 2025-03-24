@@ -8,8 +8,8 @@ import { logToFile } from '@/lib/logger'
 // 错误示例: const API_KEY = "sk_123456789"
 
 // 正确的方式是通过process.env引用
-const apiUrl = process.env.API_URL || 'https://api.gemini.com/v1/chat/completions' // 设置一个默认值或使用您实际的API地址
-const apiKey = process.env.API_KEY
+const apiUrl = process.env.API_URL || 'http://kidgapi.netlify.app/edge/v1/chat/completions' // 设置正确的API地址
+const apiKey = process.env.API_KEY || 'AIzaSyBr52X31WPJHMf1Qy570-zRDbiiUZ-zIRU' // 设置默认API密钥，但生产环境应该使用环境变量
 
 // 添加更强的验证
 if (!apiKey) {
@@ -189,7 +189,7 @@ ${JSON.stringify(deviceStats, null, 2)}
         'Authorization': `Bearer ${apiKey}`
       },
       body: JSON.stringify({
-        model: 'gemini-2.0-flash-exp',
+        model: 'gemini-2.0-flash',
         messages: messages,  // 发送完整历史
         temperature: 0.7,
         max_tokens: 1000

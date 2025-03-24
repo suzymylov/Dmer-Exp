@@ -20,5 +20,6 @@
 
 [build.environment]
   NEXT_PUBLIC_API_URL = "/api"
+  # 这里不需要添加敏感变量，请在Netlify控制台中添加API_KEY和API_URL
   # 关闭机密扫描
   SECRETS_SCAN_ENABLED = "false" 

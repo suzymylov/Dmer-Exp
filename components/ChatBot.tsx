@@ -52,13 +52,13 @@ export function ChatBot() {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ 
-          message: '初始化',
+          message: '你好，请介绍一下你自己',
           isFirstMessage: true 
         }),
       })
 
       if (!response.ok) {
-        throw new Error(`状态码: ${response.status}`)
+        throw new Error(`API请求失败: 状态码: ${response.status}`)
       }
 
       const data = await response.json()
@@ -66,6 +66,8 @@ export function ChatBot() {
       if (data.success) {
         setMessages([{ role: 'assistant', content: data.message }])
         setIsInitialized(true)
+      } else if (data.error) {
+        throw new Error(data.error)
       }
     } catch (error) {
       console.error('初始化错误:', error)
@@ -92,7 +94,10 @@ export function ChatBot() {
     setIsLoading(true)
 
     try {
+      // 确保使用正确的API路径
       const apiUrl = process.env.NEXT_PUBLIC_API_URL || '/api'
+      console.log('发送聊天请求到:', `${apiUrl}/chat`)
+      
       const response = await fetch(`${apiUrl}/chat`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
@@ -102,12 +107,27 @@ export function ChatBot() {
         }),
       })
 
+      if (!response.ok) {
+        throw new Error(`API请求失败: 状态码: ${response.status}`)
+      }
+
       const data = await response.json()
+      console.log('收到聊天响应:', data)
+      
       if (data.success) {
         setMessages(prev => [...prev, { role: 'assistant', content: data.message }])
+      } else if (data.error) {
+        throw new Error(data.error)
       }
     } catch (error) {
       console.error('聊天请求错误:', error)
+      setMessages(prev => [
+        ...prev, 
+        { 
+          role: 'assistant', 
+          content: `出错了: ${error instanceof Error ? error.message : '未知错误'}` 
+        }
+      ])
     } finally {
       setIsLoading(false)
     }
