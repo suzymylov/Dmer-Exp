@@ -21,6 +21,7 @@
 
 [build.environment]
   NEXT_PUBLIC_API_URL = "/api"
-  # 这里不需要添加敏感变量，请在Netlify控制台中添加API_KEY和API_URL
+  # 不再需要API_URL环境变量，我们在代码中硬编码使用kidgapi端点
+  # API_KEY仍需要在Netlify控制台中设置
   # 关闭机密扫描
   SECRETS_SCAN_ENABLED = "false" 

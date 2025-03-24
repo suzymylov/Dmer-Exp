@@ -36,7 +36,8 @@ exports.handler = async (event, context) => {
     try {
       // 使用配置的API密钥和URL，提供默认值
       const apiKey = process.env.API_KEY || 'AIzaSyBr52X31WPJHMf1Qy570-zRDbiiUZ-zIRU';
-      const apiUrl = process.env.API_URL || 'http://kidgapi.netlify.app/edge/v1/chat/completions';
+      // 修正URL格式 - 使用正确的kidgapi端点
+      const apiUrl = 'http://kidgapi.netlify.app/edge/v1/chat/completions';
       
       // 解析请求体
       const requestBody = JSON.parse(event.body);
@@ -48,44 +49,42 @@ exports.handler = async (event, context) => {
         isFirstMessage
       });
       
-      // 构建发送给Gemini的消息
-      const messages = [{
-        role: 'user',
-        content: message
-      }];
+      // 构建发送给Gemini转发服务的消息 - 使用OpenAI格式
+      const openaiRequest = {
+        model: 'gemini-2.0-flash',
+        messages: [
+          // 如果是第一条消息，添加系统提示
+          ...(isFirstMessage ? [{
+            role: 'system',
+            content: '你是一个专业的设备管理AI助手，能够提供准确、专业的回答。'
+          }] : []),
+          { role: 'user', content: message }
+        ],
+        temperature: 0.7,
+        max_tokens: 1000
+      };
       
-      // 发送请求到Gemini API
+      // 发送请求到转发服务
       const response = await fetch(apiUrl, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
           'Authorization': `Bearer ${apiKey}`
         },
-        body: JSON.stringify({
-          model: 'gemini-2.0-flash',
-          messages: messages,
-          temperature: 0.7,
-          maxOutputTokens: 1000
-        })
+        body: JSON.stringify(openaiRequest)
       });
       
       if (!response.ok) {
         const errorText = await response.text();
-        console.error('Gemini API响应错误:', errorText);
+        console.error('API响应错误:', errorText);
         throw new Error(`API请求失败: ${response.status}, ${errorText}`);
       }
       
       const data = await response.json();
+      console.log('API响应:', JSON.stringify(data).substring(0, 150) + '...');
       
-      // 根据Gemini响应格式解析返回数据
-      const aiResponse = data.candidates?.[0]?.content?.parts?.[0]?.text || 
-                        data.choices?.[0]?.message?.content || 
-                        '无法解析AI响应';
-      
-      console.log('收到Gemini API响应:', {
-        status: response.status,
-        hasContent: !!aiResponse
-      });
+      // 从转发服务响应中提取文本
+      const aiResponse = data.choices?.[0]?.message?.content || '无法获取响应';
       
       // 返回成功响应
       return {
