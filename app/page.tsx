@@ -27,7 +27,11 @@ export default function Page() {
     setError(null)
 
     try {
-      const response = await fetch("/api/devices")
+      const apiUrl = process.env.NODE_ENV === 'production' 
+        ? "/.netlify/functions/api/devices" 
+        : "/api/devices";
+        
+      const response = await fetch(apiUrl)
       const data = await response.json()
 
       if (!response.ok || !data.success) {

@@ -70,6 +70,60 @@ exports.handler = async (event, context) => {
     }
   }
   
+  // 处理设备数据请求
+  if (path === '/devices' || path === '/api/devices') {
+    try {
+      console.log('处理设备数据请求');
+      // 获取设备数据
+      const { deviceStats } = await getDataWithCache();
+      
+      // 转换设备数据为前端需要的格式
+      const devices = [];
+      
+      // 从deviceStats转换数据格式
+      for (const deviceName in deviceStats) {
+        const deviceData = deviceStats[deviceName];
+        
+        // 遍历每个位置
+        for (const locationName in deviceData.locations) {
+          const locationData = deviceData.locations[locationName];
+          
+          // 将每个序列号添加为单独的设备条目
+          locationData.serials.forEach(serialNumber => {
+            devices.push({
+              device_name: deviceName,
+              location: locationName,
+              serial_number: serialNumber
+            });
+          });
+        }
+      }
+      
+      // 记录响应日志
+      console.log(`返回${devices.length}个设备数据`);
+      
+      return {
+        statusCode: 200,
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          success: true,
+          devices: devices
+        })
+      };
+    } catch (error) {
+      console.error('处理设备数据请求出错:', error);
+      return {
+        statusCode: 500,
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          success: false,
+          error: '获取设备数据失败',
+          details: error.message || '未知错误'
+        })
+      };
+    }
+  }
+  
   // 处理聊天请求 - 无论是/chat还是/api/chat都应处理
   if (path === '/chat' || path === '/api/chat') {
     try {
